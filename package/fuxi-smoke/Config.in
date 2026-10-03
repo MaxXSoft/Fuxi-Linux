@@ -1,0 +1,6 @@
+config BR2_PACKAGE_FUXI_SMOKE
+	bool "Fuxi Linux userspace smoke checks"
+	depends on BR2_RISCV_32 && BR2_USE_MMU
+	help
+	  Verify fork/exec, copy-on-write, page protection, scalar
+	  misaligned accesses, and timer wakeup in the booted guest.

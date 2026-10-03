@@ -1,0 +1,117 @@
+# Fuxi Linux
+
+A Buildroot external tree for booting **OpenSBI → Linux → musl/BusyBox** on
+Fuxi in `verilator-axi-testbench`. The initial target is one RV32IMAC hart,
+ILP32 soft-float, Sv32, 128 MiB RAM, UART console, and an initramfs built into
+the kernel. No disk, network device, or U-Boot is needed.
+
+Upstream source versions are pinned in [`sources.lock`](sources.lock) and
+[`configs/fuxi_defconfig`](configs/fuxi_defconfig). Buildroot is fetched with a
+depth-one commit fetch; Linux and OpenSBI use commit archives with SHA256 checks.
+Buildroot supplies its matched GCC, binutils, musl and BusyBox versions. No full
+Git histories or forks of these components are needed.
+
+## Build in Linux
+
+On Debian/Ubuntu, install dependencies once:
+
+```sh
+./scripts/install-deps.sh
+./scripts/build.sh
+```
+
+`FUXI_WORK` defaults to `$HOME/fuxi-linux`; `FUXI_JOBS` defaults to 4. Keep this
+workspace on a native case-sensitive Linux filesystem. The external tree may
+be on a shared host mount. See [`env/README.md`](env/README.md) for the initial
+Lima environment and proxy configuration.
+
+For the existing macOS/Lima layout:
+
+```sh
+limactl start default --tty=false
+limactl shell default env FUXI_PROXY=socks5h://host.lima.internal:13659 \
+  bash /Users/maxxing/Programming/Fuxi-Linux/scripts/build.sh
+```
+
+The first build creates the cross toolchain. Subsequent builds reuse downloaded
+archives and completed package builds. Temporary executables stay under
+`$FUXI_WORK/tmp`, not `/tmp`.
+
+Important outputs in `$FUXI_WORK/output/images`:
+
+- `fw_jump.bin` and `.elf`: generic OpenSBI firmware.
+- `Image`: Linux with its static BusyBox and test program embedded in initramfs.
+- `fuxi/fuxi-sim.dtb`: Fuxi testbench hardware description.
+- `fuxi-bootstub.bin` and `.elf`: reset stub setting hart ID and DTB address.
+- `manifest.json` and `*.config`: resolved inputs, configuration and image hashes.
+
+## Validate in QEMU
+
+Run inside the builder, or set `FUXI_IMAGES` to copied images on macOS:
+
+```sh
+./scripts/smoke.py --log "$HOME/fuxi-linux/logs/qemu.log" -- \
+  ./scripts/run-qemu.sh
+```
+
+The QEMU launcher uses an RV32I CPU with M/A/C, Zicsr, Zifencei, S/U and Sv32
+enabled. QEMU generates its own device tree; its CLINT/PLIC addresses differ
+from Fuxi. Both platforms use the same firmware and kernel image.
+
+The initramfs checks fork/exec, copy-on-write, page protection and SIGSEGV,
+misaligned scalar accesses, clock_gettime/nanosleep, and tmpfs file operations.
+Success requires the `FUXI_LINUX_SMOKE_PASS` marker, no failure marker, and a
+normal emulator exit. A firmware banner or shell prompt alone is insufficient.
+
+For an interactive QEMU shell:
+
+```sh
+FUXI_CMDLINE=fuxi.interactive=1 ./scripts/run-qemu.sh
+```
+
+## Run on Fuxi
+
+Build the simulator from the Linux bring-up branch of Fuxi and the testbench,
+explicitly selecting the intended Fuxi checkout. Copy the software images from
+the VM into this checkout's ignored `output/images` directory, then run:
+
+```sh
+./scripts/smoke.py --timeout 3600 --log debug/fuxi.log -- ./scripts/run-fuxi.sh
+```
+
+`FUXI_SIM` overrides the executable path and `FUXI_IMAGES` overrides the image
+directory. `FUXI_MAX_CYCLES` defaults to two billion. The simulator reset PC is
+`0x200`; an ELF entry point does not change it.
+
+| Payload / device | Physical address |
+| --- | --- |
+| Reset stub | `0x00000200` |
+| OpenSBI | `0x80000000` |
+| Linux Image | `0x80400000` |
+| DTB | `0x87e00000` |
+| UART / PLIC source 10 | `0x10000000` |
+| Simulation exit register | `0x10001000` |
+| CLINT | `0x11000000` |
+| PLIC, M context 0 / S context 1 | `0x12000000` |
+
+The DTS advertises a 50 MHz timebase, matching the testbench's default CLINT
+divider. OpenSBI's existing generic syscon reset driver writes zero to the exit
+register on SBI shutdown. No custom Linux or OpenSBI device driver is required
+for this wiring.
+
+## Maintain the configuration
+
+Use `make -C "$FUXI_WORK/output" menuconfig`, `linux-menuconfig`, or
+`busybox-menuconfig`, and save deliberate changes with `savedefconfig`,
+`linux-update-defconfig`, or `busybox-update-config`. A saved defconfig is an
+input; image-side full configurations record how Kconfig resolved it.
+
+Do not edit `output/build` as the source of record. Put required source patches
+under `board/fuxi/patches/<package>/`, or add packages under `package/`. For local
+package edits, use the corresponding `*-rebuild` target before rebuilding the
+rootfs and kernel. After ABI, toolchain or major kernel configuration changes,
+validate in a new `FUXI_WORK` directory.
+
+Fixed inputs make the workflow repeatable; bit-identical reproduction still
+requires comparing two clean builds. Generated files, download caches and logs
+are ignored by Git.

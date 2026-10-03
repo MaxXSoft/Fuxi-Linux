@@ -1,0 +1,6 @@
+/debug/
+/output/
+/dl/
+/third_party/
+/local.mk
+__pycache__/

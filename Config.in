@@ -1,0 +1,2 @@
+source "$BR2_EXTERNAL_FUXI_PATH/package/fuxi-bootstub/Config.in"
+source "$BR2_EXTERNAL_FUXI_PATH/package/fuxi-smoke/Config.in"

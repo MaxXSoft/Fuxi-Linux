@@ -1,0 +1,7 @@
+config BR2_PACKAGE_FUXI_BOOTSTUB
+	bool "Fuxi simulation reset stub"
+	depends on BR2_RISCV_32
+	help
+	  Build the ROM reset stub that enters OpenSBI with hart 0 and
+	  the Fuxi simulation device tree. This is a simulation image,
+	  not a userspace program.

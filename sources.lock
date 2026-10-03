@@ -1,0 +1,14 @@
+{
+  "buildroot": {
+    "url": "https://github.com/buildroot/buildroot.git",
+    "commit": "d50fadcaeed45cbbf40fdecf82901dbb938403bd"
+  },
+  "linux": {
+    "commit": "e767a4ea70a3992c37ed604157d32f0dfbf9b1e3",
+    "archive": "https://github.com/torvalds/linux/archive/e767a4ea70a3992c37ed604157d32f0dfbf9b1e3/linux-e767a4ea70a3992c37ed604157d32f0dfbf9b1e3.tar.gz"
+  },
+  "opensbi": {
+    "commit": "6ad246a1494807ee91e36ffcf60e4c30bb309d45",
+    "archive": "https://github.com/riscv-software-src/opensbi/archive/6ad246a1494807ee91e36ffcf60e4c30bb309d45/opensbi-6ad246a1494807ee91e36ffcf60e4c30bb309d45.tar.gz"
+  }
+}
