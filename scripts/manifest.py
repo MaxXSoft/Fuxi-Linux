@@ -19,7 +19,9 @@ def sha(path):
     return h.hexdigest()
 
 def git(*args):
-    return subprocess.check_output(['git', '-C', str(repo), *args], text=True).strip()
+    # Trust only this explicitly selected checkout across Lima's UID mapping.
+    return subprocess.check_output(['git', '-c', f'safe.directory={repo}',
+                                    '-C', str(repo), *args], text=True).strip()
 
 configs = {}
 for name, pattern in [('buildroot', '.config'), ('linux', 'build/linux-*/.config'),

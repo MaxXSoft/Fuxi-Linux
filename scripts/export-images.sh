@@ -6,11 +6,17 @@ work=${FUXI_WORK:-$HOME/fuxi-linux}
 destination=${1:-$repo/output/images}
 test -f "$work/output/images/manifest.json"
 mkdir -p "$destination"
-cp -a "$work/output/images/." "$destination/"
-python3 - "$destination" <<'PY'
+python3 - "$work/output/images" "$destination" <<'PY'
 import hashlib, json, sys
 from pathlib import Path
-root = Path(sys.argv[1])
+import shutil
+source, root = map(Path, sys.argv[1:])
+for path in source.rglob('*'):
+    if path.is_file():
+        target = root / path.relative_to(source)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        # Shared macOS mounts need file contents, not Linux owner/timestamp metadata.
+        shutil.copyfile(path, target)
 manifest = json.loads((root / 'manifest.json').read_text())
 for name, expected in manifest['artifact_sha256'].items():
     actual = hashlib.sha256((root / name).read_bytes()).hexdigest()
