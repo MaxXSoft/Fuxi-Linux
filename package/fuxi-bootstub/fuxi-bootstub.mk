@@ -13,9 +13,11 @@ FUXI_BOOTSTUB_INSTALL_IMAGES = YES
 FUXI_BOOTSTUB_INSTALL_TARGET = NO
 
 define FUXI_BOOTSTUB_BUILD_CMDS
+	$(TARGET_CC) -march=rv32i_zicsr -mabi=ilp32 -c \
+		-o $(@D)/boot.o $(@D)/boot.S
 	$(TARGET_CC) -march=rv32i_zicsr -mabi=ilp32 -nostdlib -nostartfiles \
 		-static -Wl,--build-id=none -Wl,--no-relax -Wl,-T,$(@D)/link.ld \
-		-o $(@D)/fuxi-bootstub.elf $(@D)/boot.S
+		-o $(@D)/fuxi-bootstub.elf $(@D)/boot.o
 	$(TARGET_OBJCOPY) -O binary $(@D)/fuxi-bootstub.elf $(@D)/fuxi-bootstub.bin
 endef
 

@@ -24,17 +24,29 @@ def git(*args):
                                     '-C', str(repo), *args], text=True).strip()
 
 configs = {}
+resolved = {}
 for name, pattern in [('buildroot', '.config'), ('linux', 'build/linux-*/.config'),
                       ('busybox', 'build/busybox-*/.config'),
                       ('opensbi', 'build/opensbi-*/build/platform/generic/kconfig/.config')]:
     files = list(output.glob(pattern))
-    if len(files) == 1:
-        dest = output / 'images' / f'{name}.config'
-        dest.write_bytes(files[0].read_bytes())
-        configs[name] = sha(dest)
+    if len(files) != 1:
+        raise SystemExit(f'Expected exactly one {name} configuration, found {len(files)}: {pattern}')
+    resolved[name] = files[0]
+
+sources = json.loads((repo / 'sources.lock').read_text())
+config = dict(line.split('=', 1) for line in resolved['buildroot'].read_text().splitlines()
+              if line.startswith('BR2_') and '=' in line)
+for name, symbol in [('linux', 'BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION'),
+                     ('opensbi', 'BR2_TARGET_OPENSBI_CUSTOM_TARBALL_LOCATION')]:
+    if config.get(symbol) != json.dumps(sources[name]['archive']):
+        raise SystemExit(f'{name}: resolved build configuration differs from sources.lock')
+for name, path in resolved.items():
+    dest = output / 'images' / f'{name}.config'
+    dest.write_bytes(path.read_bytes())
+    configs[name] = sha(dest)
 
 print(json.dumps({
-    'sources': json.loads((repo / 'sources.lock').read_text()),
+    'sources': sources,
     'integration_commit': git('rev-parse', 'HEAD'),
     'integration_dirty': bool(git('status', '--porcelain')),
     'host': platform.platform(),

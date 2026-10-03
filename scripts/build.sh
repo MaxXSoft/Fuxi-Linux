@@ -10,6 +10,18 @@ work=$(cd "$work" && pwd)
 export TMPDIR="$work/tmp"
 br="$work/buildroot"
 out="$work/output"
+python3 - "$repo" <<'PY'
+import json, pathlib, sys
+repo = pathlib.Path(sys.argv[1])
+sources = json.loads((repo / 'sources.lock').read_text())
+config = dict(line.split('=', 1) for line in
+              (repo / 'configs/fuxi_defconfig').read_text().splitlines()
+              if line.startswith('BR2_') and '=' in line)
+for name, symbol in [('linux', 'BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION'),
+                     ('opensbi', 'BR2_TARGET_OPENSBI_CUSTOM_TARBALL_LOCATION')]:
+    if config.get(symbol) != json.dumps(sources[name]['archive']):
+        raise SystemExit(f'{name}: sources.lock and fuxi_defconfig disagree')
+PY
 read -r url revision < <(python3 - "$repo/sources.lock" <<'PY'
 import json, sys
 s = json.load(open(sys.argv[1]))['buildroot']
@@ -49,6 +61,12 @@ make -C "$br" O="$out" BR2_EXTERNAL="$repo" BR2_DL_DIR="$work/downloads" fuxi_de
 make -C "$out" BR2_DL_DIR="$work/downloads" BR2_JLEVEL="$jobs" \
     BR2_PRIMARY_SITE="${FUXI_MIRROR-https://sources.buildroot.net}" \
     BR2_WGET="python3 $repo/scripts/download.py" "$@" 2>&1 | tee "$work/logs/build.log"
-if [[ $# = 0 ]]; then
-    "$repo/scripts/manifest.py" "$out" > "$out/images/manifest.json"
+full_build=false
+if [[ $# = 0 ]]; then full_build=true; fi
+for target in "$@"; do
+    if [[ $target = all ]]; then full_build=true; fi
+done
+if $full_build; then
+    "$repo/scripts/manifest.py" "$out" > "$out/.manifest.json.new"
+    mv "$out/.manifest.json.new" "$out/images/manifest.json"
 fi

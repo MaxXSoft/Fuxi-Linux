@@ -72,7 +72,8 @@ FUXI_CMDLINE=fuxi.interactive=1 ./scripts/run-qemu.sh
 ## Run on Fuxi
 
 Build the simulator from the Linux bring-up branch of Fuxi and the testbench
-with `./scripts/build-sim.sh`. It explicitly selects the sibling Fuxi checkout;
+with `./scripts/build-sim.sh`. It checks that both checkouts are clean and match
+`sources.lock`, then explicitly selects the sibling Fuxi checkout;
 `FUXI_SOURCE` and `FUXI_TESTBENCH` override those source paths. Run
 `scripts/export-images.sh` inside the VM to copy the software images into this
 checkout's ignored `output/images` directory and verify their hashes, then run
@@ -81,6 +82,10 @@ the simulator on the host:
 ```sh
 ./scripts/smoke.py --timeout 3600 --log debug/fuxi.log -- ./scripts/run-fuxi.sh
 ```
+
+Install the simulator build dependencies described in the testbench README
+(including JDK/sbt, Verilator, CMake and a C++ compiler) on that host. Software
+cross-compilation remains inside Linux; the simulator can run on macOS.
 
 `FUXI_SIM` overrides the executable path and `FUXI_IMAGES` overrides the image
 directory. `FUXI_MAX_CYCLES` defaults to two billion. The simulator reset PC is
@@ -110,7 +115,7 @@ for this wiring.
 
 ## Maintain the configuration
 
-Use `make -C "$FUXI_WORK/output" menuconfig`, `linux-menuconfig`, or
+Use `make -C "${FUXI_WORK:-$HOME/fuxi-linux}/output" menuconfig`, `linux-menuconfig`, or
 `busybox-menuconfig`, and save deliberate changes with `savedefconfig`,
 `linux-update-defconfig`, or `busybox-update-config`. A saved defconfig is an
 input; image-side full configurations record how Kconfig resolved it.
@@ -120,6 +125,25 @@ under `board/fuxi/patches/<package>/`, or add packages under `package/`. For loc
 package edits, use the corresponding `*-rebuild` target before rebuilding the
 rootfs and kernel. After ABI, toolchain or major kernel configuration changes,
 validate in a new `FUXI_WORK` directory.
+
+After package-specific rebuilds, run `scripts/build.sh` without arguments (or
+with a final `all` target) to regenerate initramfs, Image and their manifest.
+Changing a BusyBox selection can leave old applet links in an incremental
+target directory; use a fresh work directory for the reproducibility check.
+
+To collect package sources, applied patches and license manifests:
+
+```sh
+./scripts/build.sh legal-info
+work=${FUXI_WORK:-$HOME/fuxi-linux}
+git -C "$work/buildroot" archive --format=tar --prefix=buildroot/ HEAD \
+  | gzip -n > "$work/output/legal-info/buildroot.tar.gz"
+```
+
+The extra archive supplies the Buildroot sources that `legal-info` does not
+save automatically. Keep this external tree's Git revision alongside that
+directory and the image manifest. No generated archives need to be committed
+to this repository.
 
 Fixed inputs make the workflow repeatable; bit-identical reproduction still
 requires comparing two clean builds. Generated files, download caches and logs
