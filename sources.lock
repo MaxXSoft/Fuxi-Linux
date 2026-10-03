@@ -13,10 +13,10 @@
   },
   "fuxi": {
     "url": "https://github.com/MaxXSoft/Fuxi.git",
-    "commit": "475ad3fd99000099426a6f369727172348bdceac"
+    "commit": "00bd6718e2f7de0e5fc6fc8ef0554c1b59bbce03"
   },
   "testbench": {
     "url": "https://github.com/MaxXSoft/verilator-axi-testbench.git",
-    "commit": "832477444233fe0cf75faaf5b5faf3b578cc96e0"
+    "commit": "90855cceb415605b19f6fc9fded7c7e26993935b"
   }
 }

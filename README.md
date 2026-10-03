@@ -11,6 +11,14 @@ depth-one commit fetch; Linux and OpenSBI use commit archives with SHA256 checks
 Buildroot supplies its matched GCC, binutils, musl and BusyBox versions. No full
 Git histories or forks of these components are needed.
 
+The tested configuration and reproduction evidence are recorded in
+[the bring-up report](docs/validation-2026-10-03.md).
+
+When publishing a reproducible snapshot, publish the Fuxi and testbench commits
+named in `sources.lock` as well as this external tree. A local commit is not
+fetchable by other users until its branch is pushed. The software packages can
+continue to use the upstream sources recorded here.
+
 ## Build in Linux
 
 On Debian/Ubuntu, install dependencies once:
