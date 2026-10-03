@@ -83,7 +83,8 @@
 		/* A complete 32-bit write exits the host simulation with this code. */
 		sim_exit: syscon@10001000 {
 			compatible = "syscon";
-			reg = <0 0x10001000 0 4>;
+			/* OpenSBI domains require at least an 8-byte MMIO window. */
+			reg = <0 0x10001000 0 8>;
 			reg-io-width = <4>;
 		};
 

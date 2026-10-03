@@ -3,7 +3,7 @@
 The initial build uses the existing Lima `default` VM on macOS ARM64:
 
 - Ubuntu 24.10 ARM64, Linux 6.11.0-19-generic
-- 8 virtual CPUs, 4 GiB memory, four compiler jobs
+- 8 virtual CPUs, 4 GiB memory, two compiler jobs and a temporary 4 GiB swap file
 - Native VM workspace: `/home/maxxing.linux/fuxi-linux`
 - Shared configuration checkout: `/Users/maxxing/Programming/Fuxi-Linux`
 - Host GCC 14.2.0, GNU Make 4.3
@@ -19,6 +19,11 @@ Keep `FUXI_WORK` on the VM's native, case-sensitive filesystem. Host-shared
 configuration and scripts are fine; Linux source and Buildroot output should not
 be extracted onto the macOS home mount. `build.sh` sets `TMPDIR` to a directory
 under `FUXI_WORK`, including for configure probes and host executables.
+
+GCC 15's generated instruction emitters exceeded the existing VM's 4 GiB RAM
+with four jobs. Use a VM with at least 8 GiB for more parallelism, or retain the
+two-job default and provide swap. The first build used
+`$FUXI_WORK/build.swap` (4 GiB, enabled with `mkswap`/`swapon`, no fstab change).
 
 An optional SOCKS proxy can be supplied as `FUXI_PROXY`. In Lima, use
 `socks5h://host.lima.internal:13659`; on the host the corresponding address is

@@ -3,7 +3,7 @@
 set -euo pipefail
 repo=$(cd "$(dirname "$0")/.." && pwd)
 work=${FUXI_WORK:-$HOME/fuxi-linux}
-jobs=${FUXI_JOBS:-4}
+jobs=${FUXI_JOBS:-2}
 test "$(uname -s)" = Linux || { echo 'Run this script in Linux (for example, Lima).' >&2; exit 1; }
 mkdir -p "$work"/{tmp,logs,downloads}
 work=$(cd "$work" && pwd)

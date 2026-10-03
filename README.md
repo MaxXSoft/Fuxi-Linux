@@ -20,7 +20,7 @@ On Debian/Ubuntu, install dependencies once:
 ./scripts/build.sh
 ```
 
-`FUXI_WORK` defaults to `$HOME/fuxi-linux`; `FUXI_JOBS` defaults to 4. Keep this
+`FUXI_WORK` defaults to `$HOME/fuxi-linux`; `FUXI_JOBS` defaults to 2. Keep this
 workspace on a native case-sensitive Linux filesystem. The external tree may
 be on a shared host mount. See [`env/README.md`](env/README.md) for the initial
 Lima environment and proxy configuration.
@@ -54,7 +54,7 @@ Run inside the builder, or set `FUXI_IMAGES` to copied images on macOS:
   ./scripts/run-qemu.sh
 ```
 
-The QEMU launcher uses an RV32I CPU with M/A/C, Zicsr, Zifencei, S/U and Sv32
+The QEMU launcher uses an RV32I CPU with M/A/C, Zicsr, Zifencei, Zicntr, S/U and Sv32
 enabled. QEMU generates its own device tree; its CLINT/PLIC addresses differ
 from Fuxi. Both platforms use the same firmware and kernel image.
 
@@ -71,9 +71,12 @@ FUXI_CMDLINE=fuxi.interactive=1 ./scripts/run-qemu.sh
 
 ## Run on Fuxi
 
-Build the simulator from the Linux bring-up branch of Fuxi and the testbench,
-explicitly selecting the intended Fuxi checkout. Copy the software images from
-the VM into this checkout's ignored `output/images` directory, then run:
+Build the simulator from the Linux bring-up branch of Fuxi and the testbench
+with `./scripts/build-sim.sh`. It explicitly selects the sibling Fuxi checkout;
+`FUXI_SOURCE` and `FUXI_TESTBENCH` override those source paths. Run
+`scripts/export-images.sh` inside the VM to copy the software images into this
+checkout's ignored `output/images` directory and verify their hashes, then run
+the simulator on the host:
 
 ```sh
 ./scripts/smoke.py --timeout 3600 --log debug/fuxi.log -- ./scripts/run-fuxi.sh
