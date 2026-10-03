@@ -10,5 +10,13 @@
   "opensbi": {
     "commit": "6ad246a1494807ee91e36ffcf60e4c30bb309d45",
     "archive": "https://github.com/riscv-software-src/opensbi/archive/6ad246a1494807ee91e36ffcf60e4c30bb309d45/opensbi-6ad246a1494807ee91e36ffcf60e4c30bb309d45.tar.gz"
+  },
+  "fuxi": {
+    "url": "https://github.com/MaxXSoft/Fuxi.git",
+    "commit": "475ad3fd99000099426a6f369727172348bdceac"
+  },
+  "testbench": {
+    "url": "https://github.com/MaxXSoft/verilator-axi-testbench.git",
+    "commit": "832477444233fe0cf75faaf5b5faf3b578cc96e0"
   }
 }

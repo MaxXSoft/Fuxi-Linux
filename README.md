@@ -86,6 +86,12 @@ the simulator on the host:
 directory. `FUXI_MAX_CYCLES` defaults to two billion. The simulator reset PC is
 `0x200`; an ELF entry point does not change it.
 
+Use `FUXI_CMDLINE=fuxi.interactive=1 ./scripts/run-fuxi.sh` for an interactive
+BusyBox shell, then run `fuxi-smoke` and `fuxi-finish 0`. Additional command-line
+arguments are placed in a copy of the DTB under `debug/`; this requires
+`fdtget`/`fdtput` from the device-tree compiler package (`brew install dtc` on
+macOS). The original exported image remains unchanged.
+
 | Payload / device | Physical address |
 | --- | --- |
 | Reset stub | `0x00000200` |

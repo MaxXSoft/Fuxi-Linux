@@ -47,6 +47,7 @@ PY
 )
 make -C "$br" O="$out" BR2_EXTERNAL="$repo" BR2_DL_DIR="$work/downloads" fuxi_defconfig
 make -C "$out" BR2_DL_DIR="$work/downloads" BR2_JLEVEL="$jobs" \
+    BR2_PRIMARY_SITE="${FUXI_MIRROR-https://sources.buildroot.net}" \
     BR2_WGET="python3 $repo/scripts/download.py" "$@" 2>&1 | tee "$work/logs/build.log"
 if [[ $# = 0 ]]; then
     "$repo/scripts/manifest.py" "$out" > "$out/images/manifest.json"

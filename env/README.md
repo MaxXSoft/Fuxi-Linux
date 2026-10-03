@@ -3,7 +3,8 @@
 The initial build uses the existing Lima `default` VM on macOS ARM64:
 
 - Ubuntu 24.10 ARM64, Linux 6.11.0-19-generic
-- 8 virtual CPUs, 4 GiB memory, two compiler jobs and a temporary 4 GiB swap file
+- 8 virtual CPUs, 4 GiB memory and a temporary 4 GiB swap file; the build resumed
+  with `FUXI_JOBS=4` after enabling swap
 - Native VM workspace: `/home/maxxing.linux/fuxi-linux`
 - Shared configuration checkout: `/Users/maxxing/Programming/Fuxi-Linux`
 - Host GCC 14.2.0, GNU Make 4.3
@@ -30,6 +31,10 @@ An optional SOCKS proxy can be supplied as `FUXI_PROXY`. In Lima, use
 `socks5h://127.0.0.1:13659`. This setting is used for Git and the pinned GitHub
 archives and Buildroot's archive download transport. The latter is a small curl
 adapter for Buildroot's wget backend; Buildroot still verifies the archive hashes.
+By default the archive transport tries `https://sources.buildroot.net` before
+the upstream site. Override `FUXI_MIRROR`, or set it to an empty string to use
+upstream sites first. This avoids very slow transfers from some upstream hosts
+without changing the archive contents.
 
 These inputs and a successful rerun establish build reproducibility at the
 workflow level. Bit-identical output needs two clean builds and artifact hash

@@ -2,6 +2,7 @@
 """Record inputs and artifact hashes beside the build output."""
 import hashlib
 import json
+import os
 from pathlib import Path
 import platform
 import subprocess
@@ -22,7 +23,8 @@ def git(*args):
 
 configs = {}
 for name, pattern in [('buildroot', '.config'), ('linux', 'build/linux-*/.config'),
-                      ('busybox', 'build/busybox-*/.config')]:
+                      ('busybox', 'build/busybox-*/.config'),
+                      ('opensbi', 'build/opensbi-*/build/platform/generic/kconfig/.config')]:
     files = list(output.glob(pattern))
     if len(files) == 1:
         dest = output / 'images' / f'{name}.config'
@@ -34,6 +36,7 @@ print(json.dumps({
     'integration_commit': git('rev-parse', 'HEAD'),
     'integration_dirty': bool(git('status', '--porcelain')),
     'host': platform.platform(),
+    'parallel_jobs': int(os.environ.get('FUXI_JOBS', '2')),
     'output_directory': str(output),
     'config_sha256': configs,
     'artifact_sha256': {str(p.relative_to(output / 'images')): sha(p)
