@@ -148,3 +148,16 @@ to this repository.
 Fixed inputs make the workflow repeatable; bit-identical reproduction still
 requires comparing two clean builds. Generated files, download caches and logs
 are ignored by Git.
+
+For an independent toolchain and output build, choose another native Linux
+directory (sharing only the download cache is fine):
+
+```sh
+FUXI_WORK="$HOME/fuxi-linux-repro" ./scripts/build.sh
+python3 scripts/compare-images.py "$HOME/fuxi-linux/output/images" \
+  "$HOME/fuxi-linux-repro/output/images"
+```
+
+This compares every boot artifact, including the firmware and reset-stub ELF
+files. Environment metadata and Buildroot configurations contain the work
+directory path, so their bytes are not expected to match across directories.
