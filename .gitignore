@@ -1,6 +1,16 @@
+# macOS
+*.DS_Store
+
+# Debugging
 /debug/
 /output/
-/dl/
+
+# Directory for Buildroot
 /third_party/
+
+# Buildroot
+/dl/
 /local.mk
+
+# Python
 __pycache__/
