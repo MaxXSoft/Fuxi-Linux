@@ -14,8 +14,11 @@ parser.add_argument('destination', nargs='?', help='destination directory (defau
 args = parser.parse_args()
 
 work = Path(os.environ.get('FUXI_WORK') or Path.home() / 'fuxi-linux')
-source = work / 'output/images'
+source = (work / 'output/images').resolve()
 root = Path(args.destination) if args.destination else repo / 'output/images'
+root = root.resolve()
+if root == source or source in root.parents:
+    raise SystemExit(f'Destination must be outside the source images: {root}')
 if not (source / 'manifest.json').is_file():
     raise SystemExit(f'Missing build manifest: {source / "manifest.json"}')
 root.mkdir(parents=True, exist_ok=True)
