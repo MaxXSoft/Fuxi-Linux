@@ -9,6 +9,14 @@ import subprocess
 import sys
 import time
 
+
+def signal_group(pid, sig):
+    try:
+        os.killpg(pid, sig)
+    except ProcessLookupError:
+        pass
+
+
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--timeout', type=float, default=120)
 parser.add_argument('--log', type=Path, required=True)
@@ -30,12 +38,21 @@ with args.log.open('wb') as log:
     try:
         code = proc.wait(timeout=args.timeout)
     except (subprocess.TimeoutExpired, KeyboardInterrupt):
-        os.killpg(proc.pid, signal.SIGINT)
         try:
+            signal_group(proc.pid, signal.SIGINT)
             proc.wait(timeout=10)
-        except subprocess.TimeoutExpired:
-            os.killpg(proc.pid, signal.SIGKILL)
-            proc.wait()
+        except (subprocess.TimeoutExpired, KeyboardInterrupt):
+            pass
+        finally:
+            # A second interrupt ends the grace period; further interrupts must
+            # not interrupt forced cleanup or leave the direct child unreaped.
+            previous_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
+            try:
+                # Descendants can outlive the group leader even after wait().
+                signal_group(proc.pid, signal.SIGKILL)
+                proc.wait()
+            finally:
+                signal.signal(signal.SIGINT, previous_handler)
         print(f'Boot interrupted or timed out; see {args.log}', file=sys.stderr)
         sys.exit(124)
 
