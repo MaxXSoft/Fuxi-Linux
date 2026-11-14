@@ -7,7 +7,7 @@ work=${FUXI_WORK:-$HOME/fuxi-linux}
 jobs=${FUXI_JOBS:-2}
 test "$(uname -s)" = Linux || { echo 'Run this script in Linux (for example, Lima).' >&2; exit 1; }
 test -f "$br/Makefile" || {
-  echo 'Initialize Buildroot with: git submodule update --init third_party/buildroot' >&2
+  echo 'Initialize Buildroot with: git -c core.symlinks=true submodule update --init third_party/buildroot' >&2
   exit 1
 }
 mkdir -p "$work"/{tmp,logs,downloads}

@@ -15,7 +15,7 @@ Processor RTL and simulator builds are managed separately.
 From this checkout on Debian/Ubuntu Linux:
 
 ```sh
-git submodule update --init third_party/buildroot
+git -c core.symlinks=true submodule update --init third_party/buildroot
 ./scripts/install-deps.sh
 ./scripts/build.sh
 ./scripts/smoke.py --log "${FUXI_WORK:-$HOME/fuxi-linux}/logs/qemu.log" -- \

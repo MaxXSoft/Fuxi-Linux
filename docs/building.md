@@ -10,13 +10,16 @@ On a supported Debian/Ubuntu installation, install the host dependencies once:
 
 ```sh
 ./scripts/install-deps.sh
-git submodule update --init third_party/buildroot
+git -c core.symlinks=true submodule update --init third_party/buildroot
 ./scripts/build.sh
 ```
 
 The script uses the checkout in `third_party/buildroot` and leaves its Git
 revision unchanged. Initialize or update the submodule explicitly after
 checking out a revision of this repository that changes its pin.
+Buildroot requires real symbolic links; the explicit `core.symlinks=true`
+also handles hosts whose global Git configuration disables them. An existing
+checkout created with links disabled must have its links restored before use.
 
 The first build creates a cross toolchain. Later builds reuse downloaded
 sources and completed package builds. Keep `FUXI_WORK` on a native,
@@ -51,7 +54,8 @@ Git submodule initialization is a separate operation. If Git also needs the
 proxy, pass it explicitly:
 
 ```sh
-git -c http.proxy="$FUXI_PROXY" submodule update --init third_party/buildroot
+git -c core.symlinks=true -c http.proxy="$FUXI_PROXY" \
+  submodule update --init third_party/buildroot
 ```
 
 ## Outputs and export
