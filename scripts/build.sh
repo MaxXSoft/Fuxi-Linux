@@ -33,4 +33,6 @@ done
 if $full_build; then
   "$repo/scripts/manifest.py" "$out" > "$out/.manifest.json.new"
   mv "$out/.manifest.json.new" "$out/images/manifest.json"
+else
+  echo 'Image manifest not refreshed; run ./scripts/build.sh all before exporting.' >&2
 fi
