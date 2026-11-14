@@ -1,4 +1,6 @@
-/* SPDX-License-Identifier: MIT */
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* Copyright (C) 2026 MaxXing */
+
   .section .text.init, "ax", @progbits
   .globl _start
   .option norvc

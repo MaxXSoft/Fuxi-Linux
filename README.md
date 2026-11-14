@@ -38,3 +38,16 @@ device trees are managed by the board project.
 
 - [Build environment, configuration and source maintenance](docs/building.md)
 - [QEMU and Fuxi validation, simulator interface and reproducibility](docs/testing.md)
+
+## License
+
+Unless otherwise stated, original Fuxi-Linux code and documentation are
+licensed under the [GNU General Public License, version 3 only](LICENSE)
+(`GPL-3.0-only`).
+
+Third-party components, including the Buildroot submodule and downloaded
+Linux, OpenSBI, toolchain and userspace sources, retain their respective
+licenses. See [source and license collection](docs/building.md#source-and-license-collection)
+for collecting their sources and license information.
+
+Copyright (C) 2026 MaxXing.

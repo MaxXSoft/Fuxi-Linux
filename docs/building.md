@@ -128,11 +128,19 @@ file under `board/fuxi/patches`. Linux and `linux-headers` use the same source
 archive here, so update both hash files together. Forced download hash
 checking remains enabled.
 
-Local package `.hash` files record the license text hashes used by
-`legal-info`. They do not register packages: `Config.in`, `external.mk` and
-the package `.mk` files provide their configuration and build rules.
+The local `fuxi-bootstub` and `fuxi-smoke` packages use `GPL-3.0-only` and
+share the repository's root `LICENSE`. Their `.hash` files record that
+license text's SHA-256 for `legal-info`; update both hashes if the text
+changes. These files do not register packages: `Config.in`, `external.mk`
+and the package `.mk` files provide their configuration and build rules.
 
 ## Source and license collection
+
+The local packages' hooks in `external.mk` copy the root `LICENSE` into
+their build directories before license collection and include it in each
+exported source archive. The archives contain a regular license file and
+do not depend on the original checkout. The repository keeps only one
+copy of the license text.
 
 ```sh
 ./scripts/build.sh legal-info
