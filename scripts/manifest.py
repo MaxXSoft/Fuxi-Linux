@@ -18,10 +18,10 @@ def sha(path):
             h.update(block)
     return h.hexdigest()
 
-def git(*args):
+def git(path, *args):
     # Trust only this explicitly selected checkout across Lima's UID mapping.
-    return subprocess.check_output(['git', '-c', f'safe.directory={repo}',
-                                    '-C', str(repo), *args], text=True).strip()
+    return subprocess.check_output(['git', '-c', f'safe.directory={path}',
+                                    '-C', str(path), *args], text=True).strip()
 
 configs = {}
 resolved = {}
@@ -33,13 +33,20 @@ for name, pattern in [('buildroot', '.config'), ('linux', 'build/linux-*/.config
         raise SystemExit(f'Expected exactly one {name} configuration, found {len(files)}: {pattern}')
     resolved[name] = files[0]
 
-sources = json.loads((repo / 'sources.lock').read_text())
+buildroot = repo / 'third_party/buildroot'
+sources = {
+    'buildroot': {
+        'url': git(repo, 'config', '--file', '.gitmodules',
+                   'submodule.third_party/buildroot.url'),
+        'commit': git(buildroot, 'rev-parse', 'HEAD'),
+        'dirty': bool(git(buildroot, 'status', '--porcelain')),
+    },
+}
 config = dict(line.split('=', 1) for line in resolved['buildroot'].read_text().splitlines()
               if line.startswith('BR2_') and '=' in line)
 for name, symbol in [('linux', 'BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION'),
                      ('opensbi', 'BR2_TARGET_OPENSBI_CUSTOM_TARBALL_LOCATION')]:
-    if config.get(symbol) != json.dumps(sources[name]['archive']):
-        raise SystemExit(f'{name}: resolved build configuration differs from sources.lock')
+    sources[name] = {'archive': json.loads(config[symbol])}
 for name, path in resolved.items():
     dest = output / 'images' / f'{name}.config'
     dest.write_bytes(path.read_bytes())
@@ -47,8 +54,8 @@ for name, path in resolved.items():
 
 print(json.dumps({
     'sources': sources,
-    'integration_commit': git('rev-parse', 'HEAD'),
-    'integration_dirty': bool(git('status', '--porcelain')),
+    'integration_commit': git(repo, 'rev-parse', 'HEAD'),
+    'integration_dirty': bool(git(repo, 'status', '--porcelain')),
     'host': platform.platform(),
     'parallel_jobs': int(os.environ.get('FUXI_JOBS', '2')),
     'output_directory': str(output),

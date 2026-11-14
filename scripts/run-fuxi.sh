@@ -1,9 +1,25 @@
 #!/usr/bin/env bash
 set -euo pipefail
+usage() {
+  echo "Usage: $0 SIMULATOR [SIMULATOR_ARGS...]"
+}
+if [[ $# = 0 ]]; then
+  usage >&2
+  exit 2
+fi
+if [[ $1 = -h || $1 = --help ]]; then
+  usage
+  exit 0
+fi
+sim=$1
+shift
+if [[ ! -f $sim || ! -x $sim ]]; then
+  echo "Simulator is not an executable file: $sim" >&2
+  exit 1
+fi
+sim=$(cd "$(dirname "$sim")" && pwd)/$(basename "$sim")
 repo=$(cd "$(dirname "$0")/.." && pwd)
 images=${FUXI_IMAGES:-$repo/output/images}
-sim=${FUXI_SIM:-$repo/../verilator-axi-testbench/build/linux-bringup/examples/fuxi/fuxi_sim}
-test -x "$sim" || { echo "Set FUXI_SIM to the generated simulator executable: $sim" >&2; exit 1; }
 dtb="$images/fuxi/fuxi-sim.dtb"
 if [[ -n ${FUXI_CMDLINE:-} ]]; then
     mkdir -p "$repo/debug"

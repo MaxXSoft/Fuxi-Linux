@@ -5,9 +5,6 @@
 /debug/
 /output/
 
-# Directory for Buildroot
-/third_party/
-
 # Buildroot
 /dl/
 /local.mk
