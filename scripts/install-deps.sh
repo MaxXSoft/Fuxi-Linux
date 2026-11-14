@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
+
 set -euo pipefail
+
 # Debian/Ubuntu builder. The configured apt repositories must be reachable.
 sudo apt-get update
 sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \

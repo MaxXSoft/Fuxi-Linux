@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Record inputs and artifact hashes beside the build output."""
+
 import hashlib
 import json
 import os

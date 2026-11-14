@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Run a boot command with a wall-clock timeout and require guest test markers."""
+
 import argparse
 import os
 from pathlib import Path
@@ -14,13 +15,16 @@ parser.add_argument('--log', type=Path, required=True)
 parser.add_argument('--marker', default='FUXI_LINUX_SMOKE_PASS')
 parser.add_argument('command', nargs=argparse.REMAINDER)
 args = parser.parse_args()
+
 command = args.command
 if command and command[0] == '--':
     command = command[1:]
 if not command:
     parser.error('a command is required after --')
+
 args.log.parent.mkdir(parents=True, exist_ok=True)
 start = time.monotonic()
+
 with args.log.open('wb') as log:
     proc = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
     try:
@@ -34,9 +38,11 @@ with args.log.open('wb') as log:
             proc.wait()
         print(f'Boot interrupted or timed out; see {args.log}', file=sys.stderr)
         sys.exit(124)
+
 text = args.log.read_text(errors='replace')
 print(text, end='')
 if code != 0 or args.marker not in text or 'FUXI_LINUX_SMOKE_FAIL' in text:
     print(f'Boot failed (exit {code}, marker present: {args.marker in text}); see {args.log}', file=sys.stderr)
     sys.exit(1)
+
 print(f'PASS: guest tests and clean exit, {time.monotonic() - start:.2f}s; log: {args.log}')

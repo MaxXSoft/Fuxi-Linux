@@ -1,4 +1,5 @@
 """Exercise launcher arguments and source provenance without building Linux."""
+
 import hashlib
 import json
 import os
