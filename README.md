@@ -1,7 +1,9 @@
 # Fuxi Linux
 
-A Buildroot external tree for building **OpenSBI → Linux → musl/BusyBox** for
-Fuxi. The default configuration targets one RV32IMAC hart, ILP32 soft-float,
+A Buildroot external tree for building **OpenSBI + Linux + musl/BusyBox** for
+[Fuxi](https://github.com/MaxXSoft/Fuxi).
+
+The default configuration targets one RV32IMAC hart, ILP32 soft-float,
 Sv32, 128 MiB RAM and a serial console, with the root filesystem embedded in
 the kernel as an initramfs.
 
