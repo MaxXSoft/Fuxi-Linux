@@ -16,14 +16,14 @@ export TMPDIR="$work/tmp"
 out="$work/output"
 make -C "$br" O="$out" BR2_EXTERNAL="$repo" BR2_DL_DIR="$work/downloads" fuxi_defconfig
 make -C "$out" BR2_DL_DIR="$work/downloads" BR2_JLEVEL="$jobs" \
-    BR2_PRIMARY_SITE="${FUXI_MIRROR-https://sources.buildroot.net}" \
-    BR2_WGET="python3 $repo/scripts/download.py" "$@" 2>&1 | tee "$work/logs/build.log"
+  BR2_PRIMARY_SITE="${FUXI_MIRROR-https://sources.buildroot.net}" \
+  BR2_WGET="python3 $repo/scripts/download.py" "$@" 2>&1 | tee "$work/logs/build.log"
 full_build=false
 if [[ $# = 0 ]]; then full_build=true; fi
 for target in "$@"; do
-    if [[ $target = all ]]; then full_build=true; fi
+  if [[ $target = all ]]; then full_build=true; fi
 done
 if $full_build; then
-    "$repo/scripts/manifest.py" "$out" > "$out/.manifest.json.new"
-    mv "$out/.manifest.json.new" "$out/images/manifest.json"
+  "$repo/scripts/manifest.py" "$out" > "$out/.manifest.json.new"
+  mv "$out/.manifest.json.new" "$out/images/manifest.json"
 fi

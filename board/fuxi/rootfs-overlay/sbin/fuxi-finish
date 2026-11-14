@@ -3,7 +3,7 @@
 code=${1:-0}
 sync
 if [ "$code" != 0 ]; then
-	echo "FUXI_LINUX_SMOKE_FAIL: guest requested shutdown code $code"
+  echo "FUXI_LINUX_SMOKE_FAIL: guest requested shutdown code $code"
 fi
 # OpenSBI's generic syscon reset driver handles both DT-described platforms.
 # The host checks the smoke markers as SRST cannot convey a process exit code.

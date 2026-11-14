@@ -1,107 +1,107 @@
 /dts-v1/;
 
 / {
-	#address-cells = <2>;
-	#size-cells = <2>;
-	model = "Fuxi Verilator AXI testbench";
-	compatible = "fuxi,sim";
+  #address-cells = <2>;
+  #size-cells = <2>;
+  model = "Fuxi Verilator AXI testbench";
+  compatible = "fuxi,sim";
 
-	aliases {
-		serial0 = &uart0;
-	};
+  aliases {
+    serial0 = &uart0;
+  };
 
-	chosen {
-		stdout-path = "serial0:115200n8";
-		bootargs = "earlycon=uart8250,mmio,0x10000000 console=ttyS0,115200 rdinit=/init panic=-1";
-	};
+  chosen {
+    stdout-path = "serial0:115200n8";
+    bootargs = "earlycon=uart8250,mmio,0x10000000 console=ttyS0,115200 rdinit=/init panic=-1";
+  };
 
-	poweroff {
-		compatible = "syscon-poweroff";
-		regmap = <&sim_exit>;
-		offset = <0>;
-		value = <0>;
-		mask = <0xffffffff>;
-	};
+  poweroff {
+    compatible = "syscon-poweroff";
+    regmap = <&sim_exit>;
+    offset = <0>;
+    value = <0>;
+    mask = <0xffffffff>;
+  };
 
-	memory@80000000 {
-		device_type = "memory";
-		reg = <0 0x80000000 0 0x08000000>;
-	};
+  memory@80000000 {
+    device_type = "memory";
+    reg = <0 0x80000000 0 0x08000000>;
+  };
 
-	reserved-memory {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		ranges;
+  reserved-memory {
+    #address-cells = <2>;
+    #size-cells = <2>;
+    ranges;
 
-		/* The RV32 kernel begins at the next 4 MiB boundary. */
-		opensbi@80000000 {
-			reg = <0 0x80000000 0 0x00400000>;
-			no-map;
-		};
-	};
+    /* The RV32 kernel begins at the next 4 MiB boundary. */
+    opensbi@80000000 {
+      reg = <0 0x80000000 0 0x00400000>;
+      no-map;
+    };
+  };
 
-	cpus {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		timebase-frequency = <50000000>;
+  cpus {
+    #address-cells = <1>;
+    #size-cells = <0>;
+    timebase-frequency = <50000000>;
 
-		cpu0: cpu@0 {
-			device_type = "cpu";
-			compatible = "riscv";
-			reg = <0>;
-			status = "okay";
-			riscv,isa = "rv32imac_zicsr_zifencei_zicntr";
-			riscv,isa-base = "rv32i";
-			riscv,isa-extensions = "i", "m", "a", "c", "zicsr", "zifencei", "zicntr";
-			mmu-type = "riscv,sv32";
+    cpu0: cpu@0 {
+      device_type = "cpu";
+      compatible = "riscv";
+      reg = <0>;
+      status = "okay";
+      riscv,isa = "rv32imac_zicsr_zifencei_zicntr";
+      riscv,isa-base = "rv32i";
+      riscv,isa-extensions = "i", "m", "a", "c", "zicsr", "zifencei", "zicntr";
+      mmu-type = "riscv,sv32";
 
-			cpu0_intc: interrupt-controller {
-				#interrupt-cells = <1>;
-				interrupt-controller;
-				compatible = "riscv,cpu-intc";
-			};
-		};
-	};
+      cpu0_intc: interrupt-controller {
+        #interrupt-cells = <1>;
+        interrupt-controller;
+        compatible = "riscv,cpu-intc";
+      };
+    };
+  };
 
-	soc {
-		#address-cells = <2>;
-		#size-cells = <2>;
-		compatible = "simple-bus";
-		ranges;
+  soc {
+    #address-cells = <2>;
+    #size-cells = <2>;
+    compatible = "simple-bus";
+    ranges;
 
-		uart0: serial@10000000 {
-			compatible = "ns16550a";
-			reg = <0 0x10000000 0 0x100>;
-			clock-frequency = <3686400>;
-			current-speed = <115200>;
-			reg-shift = <0>;
-			reg-io-width = <1>;
-			interrupt-parent = <&plic>;
-			interrupts = <10>;
-		};
+    uart0: serial@10000000 {
+      compatible = "ns16550a";
+      reg = <0 0x10000000 0 0x100>;
+      clock-frequency = <3686400>;
+      current-speed = <115200>;
+      reg-shift = <0>;
+      reg-io-width = <1>;
+      interrupt-parent = <&plic>;
+      interrupts = <10>;
+    };
 
-		/* A complete 32-bit write exits the host simulation with this code. */
-		sim_exit: syscon@10001000 {
-			compatible = "syscon";
-			/* OpenSBI domains require at least an 8-byte MMIO window. */
-			reg = <0 0x10001000 0 8>;
-			reg-io-width = <4>;
-		};
+    /* A complete 32-bit write exits the host simulation with this code. */
+    sim_exit: syscon@10001000 {
+      compatible = "syscon";
+      /* OpenSBI domains require at least an 8-byte MMIO window. */
+      reg = <0 0x10001000 0 8>;
+      reg-io-width = <4>;
+    };
 
-		clint@11000000 {
-			compatible = "riscv,clint0";
-			reg = <0 0x11000000 0 0x10000>;
-			interrupts-extended = <&cpu0_intc 3>, <&cpu0_intc 7>;
-		};
+    clint@11000000 {
+      compatible = "riscv,clint0";
+      reg = <0 0x11000000 0 0x10000>;
+      interrupts-extended = <&cpu0_intc 3>, <&cpu0_intc 7>;
+    };
 
-		plic: interrupt-controller@12000000 {
-			compatible = "sifive,plic-1.0.0", "riscv,plic0";
-			reg = <0 0x12000000 0 0x04000000>;
-			#interrupt-cells = <1>;
-			#address-cells = <0>;
-			interrupt-controller;
-			riscv,ndev = <31>;
-			interrupts-extended = <&cpu0_intc 11>, <&cpu0_intc 9>;
-		};
-	};
+    plic: interrupt-controller@12000000 {
+      compatible = "sifive,plic-1.0.0", "riscv,plic0";
+      reg = <0 0x12000000 0 0x04000000>;
+      #interrupt-cells = <1>;
+      #address-cells = <0>;
+      interrupt-controller;
+      riscv,ndev = <31>;
+      interrupts-extended = <&cpu0_intc 11>, <&cpu0_intc 9>;
+    };
+  };
 };

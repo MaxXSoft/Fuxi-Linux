@@ -6,8 +6,8 @@ export TERM=vt100
 
 fail()
 {
-	echo "FUXI_LINUX_SMOKE_FAIL: $*"
-	exec /sbin/fuxi-finish 1
+  echo "FUXI_LINUX_SMOKE_FAIL: $*"
+  exec /sbin/fuxi-finish 1
 }
 
 mount -t devtmpfs devtmpfs /dev || fail "mount /dev"
@@ -18,8 +18,8 @@ mount -t tmpfs -o size=8m tmpfs /tmp || fail "mount /tmp"
 
 echo "FUXI_LINUX_INIT: $(uname -m)"
 if grep -q 'fuxi.interactive=1' /proc/cmdline; then
-	echo "Interactive mode. Run fuxi-smoke manually, then fuxi-finish 0 to exit."
-	exec /bin/sh
+  echo "Interactive mode. Run fuxi-smoke manually, then fuxi-finish 0 to exit."
+  exec /bin/sh
 fi
 
 printf 'Fuxi userspace filesystem test\n' >/tmp/original || fail "write tmpfs"
