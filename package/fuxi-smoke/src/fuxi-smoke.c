@@ -12,7 +12,7 @@
 #include <time.h>
 #include <unistd.h>
 
-static void fail(const char* message) {
+static void fail(const char *message) {
   perror(message);
   exit(EXIT_FAILURE);
 }
@@ -35,7 +35,7 @@ static void memory_checks(void) {
     exit(EXIT_FAILURE);
   }
 
-  volatile uint32_t* mapping =
+  volatile uint32_t *mapping =
       mmap(NULL, (size_t)page_size, PROT_READ | PROT_WRITE,
            MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   if (mapping == MAP_FAILED) fail("mmap");
@@ -47,7 +47,7 @@ static void memory_checks(void) {
     if (mapping[0] != 0x13579bdf) _exit(10);
     mapping[0] = 0x2468ace0;
     if (mapping[0] != 0x2468ace0) _exit(11);
-    execl("/bin/busybox", "busybox", "true", (char*)NULL);
+    execl("/bin/busybox", "busybox", "true", (char *)NULL);
     _exit(12);
   }
 
@@ -59,7 +59,7 @@ static void memory_checks(void) {
   }
   puts("FUXI_CHECK_PASS: fork exec copy-on-write");
 
-  if (mprotect((void*)mapping, (size_t)page_size, PROT_READ)) {
+  if (mprotect((void *)mapping, (size_t)page_size, PROT_READ)) {
     fail("mprotect");
   }
 
@@ -78,7 +78,7 @@ static void memory_checks(void) {
     exit(EXIT_FAILURE);
   }
 
-  if (munmap((void*)mapping, (size_t)page_size)) {
+  if (munmap((void *)mapping, (size_t)page_size)) {
     fail("munmap");
   }
 
