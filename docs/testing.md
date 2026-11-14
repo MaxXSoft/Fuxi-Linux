@@ -69,7 +69,7 @@ FUXI_IMAGES=/path/to/images ./scripts/smoke.py \
 ```
 
 `run-fuxi.sh` defaults to this checkout's `output/images` directory, populated
-by `scripts/export-images.sh`. The simulator path may be absolute or relative
+by `scripts/export-images.py`. The simulator path may be absolute or relative
 to the current directory. Remaining arguments are forwarded to the simulator.
 `FUXI_MAX_CYCLES` defaults to two billion.
 

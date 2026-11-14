@@ -78,7 +78,7 @@ from Flash. A board boot loader supplies those operations separately.
 To copy the images out of a VM, run this inside the builder:
 
 ```sh
-./scripts/export-images.sh /path/to/shared/images
+./scripts/export-images.py /path/to/shared/images
 ```
 
 Without an argument, the destination is this checkout's ignored
